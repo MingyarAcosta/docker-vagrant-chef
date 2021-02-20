@@ -1,0 +1,22 @@
+$script = <<-'SCRIPT'
+curl https://packages.chef.io/files/stable/chef-workstation/21.1.247/el/7/chef-workstation-21.1.247-1.el7.x86_64.rpm --output chef-workstation-21.1.247-1.el7.x86_64.rpm 
+rpm -ivh chef-workstation-21.1.247-1.el7.x86_64.rpm
+sudo yum -y install vim
+sudo cp /home/vagrant/motd /etc/motd
+sudo cp /home/vagrant/miaplicacion.conf /etc/miaplicacion.conf
+sudo useradd -u 12345 -g users -d /home/uagrm -s /bin/bash -p '$1$0W/Lmial$KaCSG.yyoX2dtHwINgiBc/' uagrm
+sudo cp /home/vagrant/ntp.conf /etc/ntp.conf
+sudo systemctl start ntpd
+SCRIPT
+Vagrant.configure("2") do |config|
+  config.vm.box = "centos/7"
+  config.vm.network "forwarded_port", guest: 9000, host: 9000
+  config.vm.provision "file", source: "motd", destination: "/home/vagrant/motd"
+  config.vm.provision "file", source: "miaplicacion.conf", destination: "/home/vagrant/miaplicacion.conf"
+  config.vm.provision "file", source: "ntp.conf", destination: "/home/vagrant/ntp.conf"
+  config.vm.provider "virtualbox" do |v|
+    v.memory = 2048
+    v.cpus = 2
+    config.vm.provision "shell", inline: $script
+  end
+end
